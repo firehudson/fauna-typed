@@ -10,7 +10,12 @@ export type DocumentPojo = {
 	ttl?: Date;
 };
 
-export type DocumentProperties = Partial<Document>;
+export type DocumentProperties = {
+	id?: string;
+	coll?: string;
+	ts?: Date | number | string;
+	ttl?: Date | number | string;
+};
 
 export class Document {
 	id!: string;
@@ -19,7 +24,7 @@ export class Document {
 	ttl?: Date;
 
 	// constructor(doc: Partial<Document> & Pick<Document, 'id'>) {
-	constructor(doc: Partial<Document>) {
+	constructor(doc: DocumentProperties) {
 		this.coll = doc.coll;
 		if (doc.ttl) {
 			this.ttl = new Date(doc.ttl);
@@ -35,15 +40,6 @@ export class Document {
 			this.ts = new Date();
 		}
 	}
-
-	// toObject(): DocumentPojo {
-	// 	return {
-	// 		id: this.id,
-	// 		coll: this.coll,
-	// 		ts: this.ts,
-	// 		ttl: this.ttl ? this.ttl : undefined
-	// 	};
-	// }
 }
 
 /**

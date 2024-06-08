@@ -7,8 +7,4 @@ const UserStore = createUserStore();
 
 const User = UserStore.init(AccountStore);
 
-const Collections = {
-	User: User
-};
-
-export { Collections, asc, desc };
+export { User, asc, desc };

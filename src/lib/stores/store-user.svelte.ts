@@ -120,30 +120,45 @@ export const deleteObject = (id: string) => {
 	}
 };
 
-const toLocalStorage = () => {
+export const toLocalStorage = () => {
 	if (browser) {
 		localStorage.setItem(STORE_NAME, JSON.stringify(current));
 	}
 };
 
-const fromLocalStorage = () => {
+export const fromLocalStorage = () => {
 	if (browser) {
+		console.log('fromLocalStorage called');
 		const storedData = localStorage.getItem(STORE_NAME);
 		console.log('***storedData***\n', storedData);
-
 		if (storedData) {
-			const parsedUsers = JSON.parse(storedData) as UserProperties[];
-			console.log('***parsedUsers***\n', parsedUsers);
-			const newUsers = parsedUsers.map((parsedUser) => {
-				const newUser = new User(parsedUser);
-				console.log('***newUser***\n', newUser);
-				return newUser;
-			});
-			Object.assign(current, newUsers);
-			// current = newUsers
-			console.log('***current 2***\n', current);
+			try {
+				const parsedUsers = JSON.parse(storedData) as UserProperties[];
+				console.log('***parsedUsers***\n', parsedUsers);
+				const newUsers = parsedUsers.map((parsedUser) => {
+					const newUser = new User(parsedUser);
+					console.log('***newUser***\n', newUser);
+					return newUser;
+				});
+				current = newUsers; // Reassign the current array to the new user instances
+				console.log('***current 2***\n', current);
+			} catch (error) {
+				console.error('Error parsing stored data:', error);
+			}
+		} else {
+			console.log('No stored data found');
 		}
 	}
+	// current.push(
+	// 	new User({
+	// 		id: 'TEMP_1',
+	// 		firstName: 'John',
+	// 		lastName: 'Doe',
+	// 		ts: new Date().toISOString(), // Assuming ts is required
+	// 		account: 'account' // Assuming account is required
+	// 	})
+	// );
+	// console.log('Test user added:', current);
 };
 
 /**

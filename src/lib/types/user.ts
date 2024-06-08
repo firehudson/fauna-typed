@@ -23,12 +23,11 @@ export type UserProperties = Omit<UserBaseProperties, 'account' | 'id' | 'ts'> &
 export class User extends Document {
 	firstName!: string;
 	lastName!: string;
-	account!: Account;
+	account?: Account;
 
 	constructor(doc: UserProperties) {
 		super(doc);
 		// Assign the document properties to the instance
-		console.log('***User this.ts***\n', this.ts);
 		const { id, ts, ttl, coll, ...remainingProps } = doc;
 		Object.assign(this, remainingProps);
 		this.coll = COLL_NAME;

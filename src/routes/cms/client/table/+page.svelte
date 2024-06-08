@@ -1,16 +1,11 @@
 <script lang="ts">
-	import { Collections, asc, desc } from '$lib/stores';
-	import { createUserStore } from '$lib/stores/store-user.svelte';
+	import { User, asc, desc } from '$lib/stores';
 	import { User as UserClass, type UserProperties } from '$lib/types/user';
 	import { X } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import Sort from './sort.svelte';
 	import type { Ordering } from '$lib/stores/_shared/order';
 	import type { Sorter } from './sort';
-
-	const userStore = createUserStore();
-
-	const User = Collections.User;
 
 	// To get the keys from User
 	const user = new UserClass({
@@ -50,7 +45,15 @@
 	});
 
 	async function createUser() {
-		User.create(u_user);
+		console.log('New user: ', u_user);
+		// User.create(u_user);
+		User.create({
+			firstName: u_user.firstName,
+			lastName: u_user.lastName,
+			coll: 'User',
+			id: 'TEMP_00e00e28-4fd3-4162-8b92-12e4f8b0f456',
+			ts: '2024-06-08T10:28:34.513Z'
+		});
 		u_user.firstName = '';
 		u_user.lastName = '';
 
