@@ -46,14 +46,7 @@
 
 	async function createUser() {
 		console.log('New user: ', u_user);
-		// User.create(u_user);
-		User.create({
-			firstName: u_user.firstName,
-			lastName: u_user.lastName,
-			coll: 'User',
-			id: 'TEMP_00e00e28-4fd3-4162-8b92-12e4f8b0f456',
-			ts: '2024-06-08T10:28:34.513Z'
-		});
+		User.create(u_user);
 		u_user.firstName = '';
 		u_user.lastName = '';
 
