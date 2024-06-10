@@ -1,38 +1,58 @@
-# create-svelte
+# Features
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+1. Typed Fauna Syntax
 
-## Creating a project
+- Collection
+  - Static Methods
+    - all() ❌
+    - byName() ❌
+    - create() ❌
+    - firstWhere() ❌
+    - toString() ❌
+    - where() ❌
+  - Instance Methods
+    - all() ✅
+    - byId() ✅
+    - create() ✅
+    - createData() ❌
+    - delete() ✅
+    - exists() ❌
+    - firstWhere() ❌
+    - replace() ✅
+    - update() ✅
+    - where() ✅
+    - \<indexName>() ❌
+- Credential ❌
+- Database ❌
+- Date ❌
+- Document
+  - delete() ✅
+  - exists() ❌
+  - replace() ✅
+  - replaceData() ❌
+  - update() ✅
+  - updateData() ❌
+- Function ❌
+- Key ❌
+- Math ❌
+- Object ❌
+- Role ❌
+- Set ❌
+- String ❌
+- Time ❌
+- Token ❌
+- TransactionTime ❌
+- Global functions ❌
 
-If you're seeing this, you've probably already done this step. Congrats!
+2. Lazy Store (Get the results from the store synchronous and the client fetches asynchronous the up to date data from the database and updates the store. (Same with create, update, and delete))
+3. Undo & Redo (Full-Store -> Bad performance)
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+TODO:
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+- Connected stores (e.g. User with Account)
+- Auto-Generated Types
+- Database Integration
+- Streaming
+- Auto-Generate Run-time validator
+- Undo & Redo (Storing only the diff between changes)
+- Cross-Store Undo & Redo
