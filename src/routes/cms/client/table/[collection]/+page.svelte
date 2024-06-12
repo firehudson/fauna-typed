@@ -14,7 +14,7 @@
 	import type { Sorter } from './sort';
 	import { page } from '$app/stores';
 
-	let collection = $derived($page.params.collection);
+	let collectionName = $derived($page.params.collection);
 
 	// To get the keys from User
 	const user = new UserClass({
@@ -24,12 +24,26 @@
 		lastName: '',
 		account: ''
 	});
-	const keys = Object.keys(user);
+	const allKeys = Object.keys(user) as Array<keyof UserProperties>;
 
-	let filter = $state({
-		firstName: '',
-		lastName: ''
-	});
+	const readonlyKeys: Array<keyof UserProperties> = ['coll', 'ts'];
+	const writableKeys = allKeys.filter((key) => !readonlyKeys.includes(key));
+
+	type StringifyProperties<T> = {
+		[K in keyof T]: string;
+	};
+
+	type CollectionFilter = StringifyProperties<UserProperties>;
+
+	const createEmptyFilter = (): CollectionFilter => {
+		const filter: Partial<CollectionFilter> = {};
+		allKeys.forEach((key) => {
+			filter[key] = '';
+		});
+		return filter as CollectionFilter;
+	};
+
+	let filter = $state(createEmptyFilter());
 
 	let sorter: Sorter[] = $state([]);
 
@@ -80,30 +94,18 @@
 	</div>
 	<div class="w-192 flex flex-col gap-10">
 		<div class="flex flex-col gap-3">
-			<h2 class="h2">{collection.charAt(0).toUpperCase() + collection.slice(1)}</h2>
+			<h2 class="h2">{collectionName.charAt(0).toUpperCase() + collectionName.slice(1)}</h2>
 			<div class="table-container space-y-4">
 				<table class="table w-full table-auto">
 					<thead>
 						<tr>
 							<th></th>
-							<th class="flex flex-col">
-								First Name
-								<input
-									class="input"
-									type="text"
-									name="searchFirstName"
-									bind:value={filter.firstName}
-								/>
-							</th>
-							<th>
-								Last Name
-								<input
-									class="input"
-									type="text"
-									name="searchLastName"
-									bind:value={filter.lastName}
-								/>
-							</th>
+							{#each allKeys as key}
+								<th class="flex flex-col">
+									{key}
+									<input class="input" type="text" name="filter-{key}" bind:value={filter[key]} />
+								</th>
+							{/each}
 							<th></th>
 							<th></th>
 						</tr>
@@ -112,23 +114,11 @@
 						{#each usersPageFiltered.data as user, index}
 							<tr>
 								<td class="w-5">{index + 1}</td>
+								{#each allKeys as key}
+									<td> <input class="input" type="text" bind:value={user[key]} name="key" /></td>
+								{/each}
 								<td>
-									<input
-										class="input"
-										type="text"
-										bind:value={user.firstName}
-										name="firstName"
-									/></td
-								>
-								<td>
-									<input class="input" type="text" bind:value={user.lastName} name="lastName" /></td
-								>
-								<td>
-									<button
-										class="btn preset-filled"
-										onclick={() =>
-											user.update({ firstName: user.firstName, lastName: user.lastName })}
-										>Update</button
+									<button class="btn preset-filled" onclick={() => user.update(user)}>Update</button
 									>
 								</td>
 								<td>
@@ -172,5 +162,5 @@
 		</div>
 	</div>
 	<div><h3 class="h3">Sort</h3></div>
-	<Sort objectKeys={keys} {sorter} class="w-80" />
+	<Sort objectKeys={allKeys} {sorter} class="w-80" />
 </div>

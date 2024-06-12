@@ -15,7 +15,7 @@ const STORE_NAME = 'USER_STORE';
 type UserBaseProperties = {
 	[K in keyof User as User[K] extends Function ? never : K]: User[K];
 };
-export type UserProperties = Omit<UserBaseProperties, 'account' | 'id' | 'ts'> &
+export type UserProperties = Omit<UserBaseProperties, 'account' | 'ts'> &
 	DocumentProperties & {
 		account?: AccountProperties | id;
 	};
@@ -33,11 +33,11 @@ export class User extends Document {
 		this.coll = COLL_NAME;
 	}
 
-	update(user: Partial<UserProperties>): void {
+	update(user: Omit<Partial<UserProperties>, 'id' | 'coll'>): void {
 		updateObject(this.id, user);
 	}
 
-	replace(user: UserProperties): void {
+	replace(user: Omit<UserProperties, 'id' | 'coll'>): void {
 		replaceObject(this.id, user);
 	}
 

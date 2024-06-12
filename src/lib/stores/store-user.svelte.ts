@@ -342,9 +342,9 @@ export const createUserStore = (): CreateUserStore => {
 				case 'lastName':
 					return target.lastName;
 				case 'update':
-					return (user: Partial<UserProperties>): void => target.update(user);
+					return (user: Omit<Partial<UserProperties>, 'id' | 'coll'>): void => target.update(user);
 				case 'replace':
-					return (user: UserProperties): void => target.replace(user);
+					return (user: Omit<UserProperties, 'id' | 'coll'>): void => target.replace(user);
 				case 'delete':
 					return () => {
 						console.log('delete target', target);

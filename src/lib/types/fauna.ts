@@ -18,9 +18,9 @@ export type DocumentProperties = {
 };
 
 export class Document {
-	id!: string;
-	coll?: string;
-	ts!: Date;
+	id: string = '';
+	coll?: string = '';
+	ts: Date = new Date();
 	ttl?: Date;
 
 	// constructor(doc: Partial<Document> & Pick<Document, 'id'>) {
@@ -33,11 +33,6 @@ export class Document {
 			this.id = doc.id;
 		} else {
 			this.id = 'TEMP_' + crypto.randomUUID();
-		}
-		if (doc.ts) {
-			this.ts = new Date(doc.ts);
-		} else {
-			this.ts = new Date();
 		}
 	}
 }
