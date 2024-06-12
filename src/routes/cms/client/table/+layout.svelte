@@ -1,11 +1,21 @@
 <script lang="ts">
+	import { Tabs } from '@skeletonlabs/skeleton-svelte';
+	import { goto } from '$app/navigation';
+
+	let group = $state('user');
 	let { children } = $props();
+
+	function handleTabClick(tabName: string) {
+		goto(`${tabName}`);
+	}
 </script>
 
-<!-- <TabGroup>
-	<Tab bind:group={tabSet} name="tab1" value={0} on:click={() => handleTabClick(0)}>
-		<span>User</span>
-	</Tab>
-	<Tab bind:group={tabSet} name="tab2" value={1} on:click={() => handleTabClick(0)}>Account</Tab>
-</TabGroup> -->
+<Tabs>
+	{#snippet list()}
+		<Tabs.Control bind:group name="user" onclick={() => handleTabClick('user')}>User</Tabs.Control>
+		<Tabs.Control bind:group name="account" onclick={() => handleTabClick('account')}
+			>Account</Tabs.Control
+		>
+	{/snippet}
+</Tabs>
 {@render children()}

@@ -1,3 +1,9 @@
+<script context="module">
+	export const load = ({ params }) => {
+		return { props: { collection: params.slug } };
+	};
+</script>
+
 <script lang="ts">
 	import { User, asc, desc } from '$lib/stores';
 	import { User as UserClass, type UserProperties } from '$lib/types/user';
@@ -6,6 +12,9 @@
 	import Sort from './sort.svelte';
 	import type { Ordering } from '$lib/stores/_shared/order';
 	import type { Sorter } from './sort';
+	import { page } from '$app/stores';
+
+	let collection = $derived($page.params.collection);
 
 	// To get the keys from User
 	const user = new UserClass({
@@ -71,7 +80,7 @@
 	</div>
 	<div class="w-192 flex flex-col gap-10">
 		<div class="flex flex-col gap-3">
-			<h2 class="h2">Users</h2>
+			<h2 class="h2">{collection.charAt(0).toUpperCase() + collection.slice(1)}</h2>
 			<div class="table-container space-y-4">
 				<table class="table w-full table-auto">
 					<thead>

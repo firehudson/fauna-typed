@@ -149,16 +149,16 @@ export const fromLocalStorage = () => {
 			console.log('No stored data found');
 		}
 	}
-	// current.push(
-	// 	new User({
-	// 		id: 'TEMP_1',
-	// 		firstName: 'John',
-	// 		lastName: 'Doe',
-	// 		ts: new Date().toISOString(), // Assuming ts is required
-	// 		account: 'account' // Assuming account is required
-	// 	})
-	// );
-	// console.log('Test user added:', current);
+	current.push(
+		new User({
+			id: 'TEMP_1',
+			firstName: 'John',
+			lastName: 'Doe',
+			ts: new Date().toISOString(), // Assuming ts is required
+			account: 'account' // Assuming account is required
+		})
+	);
+	console.log('Test user added:', current);
 };
 
 /**

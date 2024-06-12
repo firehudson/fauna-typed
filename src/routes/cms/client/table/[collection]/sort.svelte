@@ -79,12 +79,12 @@
 				onSelectedChange={handleChangeSorterDirection}
 			>
 				<Combobox.Input class="input" />
-				<Combobox.Content class="variant-filled space-y-1 px-4 py-2 rounded-token">
+				<Combobox.Content class="variant-filled rounded-token space-y-1 px-4 py-2">
 					{#each ['asc', 'desc'] as direction}
 						<Combobox.Item
 							value={{ key: selectedSort.key, direction: direction }}
 							label={direction}
-							class="flex cursor-pointer select-none px-3 py-1 -outline-offset-[3px] rounded-token hover:variant-soft hover:text-slate-50"
+							class="rounded-token hover:variant-soft flex cursor-pointer select-none px-3 py-1 -outline-offset-[3px] hover:text-slate-50"
 						>
 							{direction}
 							<Combobox.ItemIndicator class="ml-auto" asChild={false}>
@@ -106,10 +106,10 @@
 			<Combobox.Input class="input" placeholder="Find a field" aria-label="Find a field" />
 		</div>
 
-		<Combobox.Content class="variant-filled space-y-1 px-4 py-2 rounded-token" sideOffset={8}>
+		<Combobox.Content class="variant-filled rounded-token space-y-1 px-4 py-2" sideOffset={8}>
 			{#each filteredKeys as key (key.value)}
 				<Combobox.Item
-					class="cursor-pointer select-none py-1 pl-3 -outline-offset-[3px] rounded-token hover:variant-soft hover:text-slate-50"
+					class="rounded-token hover:variant-soft cursor-pointer select-none py-1 pl-3 -outline-offset-[3px] hover:text-slate-50"
 					value={key.value}
 					label={key.label}
 				>
