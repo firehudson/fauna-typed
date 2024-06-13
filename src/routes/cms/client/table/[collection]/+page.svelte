@@ -1,9 +1,3 @@
-<script context="module">
-	export const load = ({ params }) => {
-		return { props: { collection: params.slug } };
-	};
-</script>
-
 <script lang="ts">
 	import { User, asc, desc } from '$lib/stores';
 	import { User as UserClass, type UserProperties } from '$lib/types/user';
@@ -101,7 +95,7 @@
 						<tr>
 							<th></th>
 							{#each allKeys as key}
-								<th class="flex flex-col">
+								<th>
 									{key}
 									<input class="input" type="text" name="filter-{key}" bind:value={filter[key]} />
 								</th>

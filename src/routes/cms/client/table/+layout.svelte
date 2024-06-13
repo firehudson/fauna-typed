@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { Tabs } from '@skeletonlabs/skeleton-svelte';
 	import { goto } from '$app/navigation';
 
-	let group = $state('user');
+	let group = $state($page.params.collection);
 	let { children } = $props();
 
 	function handleTabClick(tabName: string) {
