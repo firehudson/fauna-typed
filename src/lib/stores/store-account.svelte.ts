@@ -30,7 +30,7 @@ export const createAccountStore = (): AccountStore => {
 	async function getUserStore() {
 		if (!UserStorePromise) {
 			UserStorePromise = import('./store-document.svelte').then((module) =>
-				module.createUserStore()
+				module.createDocumentStore()
 			);
 		}
 		return UserStorePromise;

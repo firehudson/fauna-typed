@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from './$types';
 
-import { createUserStore } from '$lib/stores/store-document.svelte';
-const User = createUserStore().initS;
+import { createDocumentStore } from '$lib/stores/store-document.svelte';
+const User = createDocumentStore().initS;
 
 export const load = (async () => {
 	/**

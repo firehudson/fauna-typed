@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createUserStore } from '$lib/stores/store-document.svelte';
+	import { createDocumentStore } from '$lib/stores/store-document.svelte';
 	import type { User } from '$lib/types/user';
 	import { X } from 'lucide-svelte';
 	// import type { PageData } from './$types';
@@ -9,7 +9,7 @@
 		lastName: ''
 	});
 
-	const User = createUserStore().initS;
+	const User = createDocumentStore().initS;
 	// let usersPage = $state(User.all());
 
 	let usersPageFiltered = $derived(

@@ -1,15 +1,13 @@
 import { Module, type QuerySuccess, TimeStub } from 'fauna';
+import { client, fql } from '../database/client';
 import { Page, Document, type Predicate } from '../types/fauna';
 import { User, type UserProperties, type UserPojo } from '../types/user';
-import { v } from '../types/validators';
 import type { AccountStore } from './store-account.svelte';
 import type { Ordering } from './_shared/order';
 import { redo, undo } from './_shared/history';
-import { client, fql } from '../database/client';
 import { browser } from '$app/environment';
 
-const COLL_NAME = 'User';
-const STORE_NAME = 'USER_STORE';
+let COLL_NAME: string;
 
 export type CreateUserStore = {
 	users: User[];
@@ -44,8 +42,7 @@ export type UserStore = {
 
 const documentHandler = {
 	get(target: any, prop: any, receiver: any): any {
-		console.log('objectProp:', prop);
-		console.log('objectTarget:', target);
+		console.log('document handler accessed');
 
 		switch (prop) {
 			case 'id':
@@ -103,7 +100,6 @@ const getObjects = (filter: Predicate<User>): User[] => {
 const upsertObject = (user: UserProperties): User => {
 	const index = current.findIndex((u) => $state.is(u.id, user.id));
 
-	// const newUser = new User(user);
 	const newUser: User = new Proxy(new User(user), documentHandler);
 
 	if (index > -1) {
@@ -158,13 +154,13 @@ export const deleteObject = (id: string) => {
 
 export const toLocalStorage = () => {
 	if (browser) {
-		localStorage.setItem(STORE_NAME, JSON.stringify(current));
+		localStorage.setItem(COLL_NAME, JSON.stringify(current));
 	}
 };
 
 export const fromLocalStorage = () => {
 	if (browser) {
-		const storedData = localStorage.getItem(STORE_NAME);
+		const storedData = localStorage.getItem(COLL_NAME);
 		if (storedData) {
 			try {
 				const parsedUsers = JSON.parse(storedData) as UserProperties[];
@@ -204,10 +200,9 @@ const addToPast = (): void => {
 	future = [];
 };
 
-export const createUserStore = (): CreateUserStore => {
+export const createDocumentStore = <T>(collectionName: string): CreateUserStore => {
+	COLL_NAME = collectionName;
 	let AccountStore: AccountStore | null = null;
-
-	// fromLocalStorage();
 
 	const createStoreHandler = {
 		get(target: any, prop: any, receiver: any): any {
@@ -224,7 +219,7 @@ export const createUserStore = (): CreateUserStore => {
 					return () => {
 						current = [];
 						if (window) {
-							localStorage.removeItem(STORE_NAME);
+							localStorage.removeItem(COLL_NAME);
 						}
 					};
 				default:
@@ -240,20 +235,17 @@ export const createUserStore = (): CreateUserStore => {
 			switch (prop) {
 				case 'byId':
 					return (...args: string[]) => {
-						const user = getObjects((user) => user.id === args[0]).at(0);
-						return user;
+						return getObjects((doc) => doc.id === args[0]).at(0);
 					};
 
 				case 'first':
 					return () => {
-						const firstResult = current.at(0);
-						return firstResult;
+						return current.at(0);
 					};
 
 				case 'last':
 					return () => {
-						const lastResult = current.at(-1);
-						return lastResult;
+						return current.at(-1);
 					};
 
 				case 'all':
@@ -341,7 +333,6 @@ export const createUserStore = (): CreateUserStore => {
 	const arrayHandler = {
 		get(target: any, prop: any, receiver: any): any {
 			console.log('arrayProp:', prop);
-			console.log('arrayTarget:', target);
 
 			switch (prop) {
 				case 'at':

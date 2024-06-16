@@ -1,10 +1,11 @@
 import { createAccountStore } from './store-account.svelte';
-import { createUserStore } from './store-document.svelte';
+import { createDocumentStore } from './store-document.svelte';
 import { asc, desc } from './_shared/order';
+import type { User } from '$lib/types/user';
 
 const AccountStore = createAccountStore();
-const UserStore = createUserStore();
+const UserStore = createDocumentStore<User>('User');
 
-const User = UserStore.init(AccountStore);
+const initUserStore = UserStore.init(AccountStore);
 
-export { User, asc, desc };
+export { initUserStore as User, asc, desc };
