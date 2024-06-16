@@ -42,6 +42,40 @@ export type UserStore = {
 	toObjectArray: (users: User[]) => UserPojo[];
 };
 
+const documentHandler = {
+	get(target: any, prop: any, receiver: any): any {
+		console.log('objectProp:', prop);
+		console.log('objectTarget:', target);
+
+		switch (prop) {
+			case 'id':
+				return target.id;
+			case 'ts':
+				return target.ts;
+			case 'coll':
+				return target.coll;
+			case 'firstName':
+				return target.firstName;
+			case 'lastName':
+				return target.lastName;
+			case 'update':
+				return (user: Omit<Partial<UserProperties>, 'id' | 'coll'>): void => {
+					console.log('update target', target);
+					return target.update(user);
+				};
+			case 'replace':
+				return (user: Omit<UserProperties, 'id' | 'coll'>): void => target.replace(user);
+			case 'delete':
+				return () => {
+					console.log('delete target', target);
+					target.delete();
+				};
+			default:
+				return Reflect.get(target, prop, receiver);
+		}
+	}
+};
+
 /**
  * Used to determine the current state of the store
  */
@@ -69,7 +103,9 @@ const getObjects = (filter: Predicate<User>): User[] => {
 const upsertObject = (user: UserProperties): User => {
 	const index = current.findIndex((u) => $state.is(u.id, user.id));
 
-	const newUser = new User(user);
+	// const newUser = new User(user);
+	const newUser: User = new Proxy(new User(user), documentHandler);
+
 	if (index > -1) {
 		addToPast();
 		current[index] = newUser;
@@ -128,20 +164,15 @@ export const toLocalStorage = () => {
 
 export const fromLocalStorage = () => {
 	if (browser) {
-		console.log('fromLocalStorage called');
 		const storedData = localStorage.getItem(STORE_NAME);
-		console.log('***storedData***\n', storedData);
 		if (storedData) {
 			try {
 				const parsedUsers = JSON.parse(storedData) as UserProperties[];
-				console.log('***parsedUsers***\n', parsedUsers);
-				const newUsers = parsedUsers.map((parsedUser) => {
-					const newUser = new User(parsedUser);
-					console.log('***newUser***\n', newUser);
-					return newUser;
+				parsedUsers.forEach((parsedUser) => {
+					upsertObject(new User(parsedUser));
 				});
-				current = newUsers; // Reassign the current array to the new user instances
-				console.log('***current 2***\n', current);
+
+				console.log('Store updated from localStorage');
 			} catch (error) {
 				console.error('Error parsing stored data:', error);
 			}
@@ -210,19 +241,19 @@ export const createUserStore = (): CreateUserStore => {
 				case 'byId':
 					return (...args: string[]) => {
 						const user = getObjects((user) => user.id === args[0]).at(0);
-						return new Proxy(user, objectHandler);
+						return user;
 					};
 
 				case 'first':
 					return () => {
 						const firstResult = current.at(0);
-						return new Proxy(firstResult, objectHandler);
+						return firstResult;
 					};
 
 				case 'last':
 					return () => {
 						const lastResult = current.at(-1);
-						return new Proxy(lastResult, objectHandler);
+						return lastResult;
 					};
 
 				case 'all':
@@ -241,7 +272,7 @@ export const createUserStore = (): CreateUserStore => {
 
 				case 'create':
 					return (user: UserProperties) => {
-						return new Proxy(upsertObject(user), objectHandler);
+						return upsertObject(user);
 					};
 
 				/*************
@@ -310,45 +341,16 @@ export const createUserStore = (): CreateUserStore => {
 	const arrayHandler = {
 		get(target: any, prop: any, receiver: any): any {
 			console.log('arrayProp:', prop);
+			console.log('arrayTarget:', target);
 
 			switch (prop) {
 				case 'at':
 					return (index: number) => {
 						if (target.at(index) != null) {
-							return new Proxy(target.at(index), objectHandler);
+							return target.at(index);
 						} else {
 							target.at(index);
 						}
-					};
-				default:
-					return Reflect.get(target, prop, receiver);
-			}
-		}
-	};
-
-	const objectHandler = {
-		get(target: any, prop: any, receiver: any): any {
-			console.log('objectProp:', prop);
-
-			switch (prop) {
-				case 'id':
-					return target.id;
-				case 'ts':
-					return target.ts;
-				case 'coll':
-					return target.coll;
-				case 'firstName':
-					return target.firstName;
-				case 'lastName':
-					return target.lastName;
-				case 'update':
-					return (user: Omit<Partial<UserProperties>, 'id' | 'coll'>): void => target.update(user);
-				case 'replace':
-					return (user: Omit<UserProperties, 'id' | 'coll'>): void => target.replace(user);
-				case 'delete':
-					return () => {
-						console.log('delete target', target);
-						target.delete();
 					};
 				default:
 					return Reflect.get(target, prop, receiver);

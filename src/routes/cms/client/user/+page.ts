@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { createUserStore } from '$lib/stores/store-user.svelte';
+import { createUserStore } from '$lib/stores/store-document.svelte';
 
 const User = createUserStore().initS;
 

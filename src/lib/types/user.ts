@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { type } from 'arktype';
 import type { Account, AccountPojo, AccountProperties } from './account';
 import { Document, type DocumentPojo, type id, type DocumentProperties } from './fauna';
-import { deleteObject, replaceObject, updateObject } from '../stores/store-user.svelte';
+import { deleteObject, replaceObject, updateObject } from '../stores/store-document.svelte';
 
 const COLL_NAME = 'User';
 const STORE_NAME = 'USER_STORE';

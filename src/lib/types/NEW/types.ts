@@ -3,7 +3,8 @@ import { Client, fql, Page, type QuerySuccess, type DocumentT } from 'fauna';
 type User = {
 	firstName: string;
 	lastName: string;
-	account: () => Account;
+	// account: () => Account;
+	account: Account;
 };
 
 type Account = {
@@ -20,8 +21,8 @@ type Functions<T> = {
 
 type FunctionsT<T> = Functions<T> & T;
 
-// const mergedUser: FunctionsT<DocumentT<User>>;
-// mergedUser.account;
+const mergedUser: FunctionsT<DocumentT<User>>;
+mergedUser.account;
 
 // const mergedPageUser: Page<FunctionsT<DocumentT<User>>>;
 // mergedPageUser.data.forEach((doc) => doc.account);

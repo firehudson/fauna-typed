@@ -3,7 +3,7 @@ import { client, fql } from '../database/client';
 import type { User } from '../types/user';
 import { v } from '../types/validators';
 import type { Account } from '../types/account';
-import type { UserStore } from './store-user.svelte';
+import type { UserStore } from './store-document.svelte';
 
 export type AccountStore = {
 	byId: (id: string) => Promise<Account>;
@@ -29,7 +29,9 @@ export const createAccountStore = (): AccountStore => {
 
 	async function getUserStore() {
 		if (!UserStorePromise) {
-			UserStorePromise = import('./store-user.svelte').then((module) => module.createUserStore());
+			UserStorePromise = import('./store-document.svelte').then((module) =>
+				module.createUserStore()
+			);
 		}
 		return UserStorePromise;
 	}

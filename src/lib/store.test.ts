@@ -1,6 +1,6 @@
 import { expect, it, test } from 'vitest';
 import { User } from './stores';
-import { fromLocalStorage, toLocalStorage } from './stores/store-user.svelte';
+import { fromLocalStorage, toLocalStorage } from './stores/store-document.svelte';
 
 /**
  * @vitest-environment jsdom

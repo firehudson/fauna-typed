@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createUserStore } from '$lib/stores/store-user.svelte';
+	import { createUserStore } from '$lib/stores/store-document.svelte';
 	import type { User } from '$lib/types/user';
 	import { X } from 'lucide-svelte';
 	// import type { PageData } from './$types';
@@ -40,7 +40,7 @@
 </script>
 
 <div class="flex flex-col flex-wrap content-center gap-10 p-4">
-	<div class="flex w-192 flex-col gap-10">
+	<div class="w-192 flex flex-col gap-10">
 		<div class="flex max-w-96 flex-col gap-3">
 			<div class="flex gap-3">
 				<label class="label">
@@ -75,7 +75,7 @@
 			<h2 class="h2">Users</h2>
 			<!-- {#each data.user as user} -->
 			<div class="table-container space-y-4">
-				<table class="table table-hover table-compact w-full table-auto">
+				<table class="table-hover table-compact table w-full table-auto">
 					<thead>
 						<tr>
 							<th class="flex flex-col"
