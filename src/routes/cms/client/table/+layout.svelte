@@ -2,21 +2,23 @@
 	import { page } from '$app/stores';
 	import { Tabs } from '@skeletonlabs/skeleton-svelte';
 	import { goto } from '$app/navigation';
+	import { Collections } from '$lib/stores';
 
 	let group = $state($page.params.collection);
 	let { children } = $props();
 
 	function handleTabClick(tabName: string) {
-		goto(`${tabName}`);
+		goto(`/cms/client/table/${tabName.toLowerCase()}`);
 	}
 </script>
 
 <Tabs>
 	{#snippet list()}
-		<Tabs.Control bind:group name="user" onclick={() => handleTabClick('user')}>User</Tabs.Control>
-		<Tabs.Control bind:group name="account" onclick={() => handleTabClick('account')}
-			>Account</Tabs.Control
-		>
+		{#each Object.keys(Collections) as collection (collection)}
+			<Tabs.Control bind:group name={collection} onchange={() => handleTabClick(collection)}
+				>{collection}</Tabs.Control
+			>
+		{/each}
 	{/snippet}
 </Tabs>
 {@render children()}
