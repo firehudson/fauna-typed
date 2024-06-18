@@ -1,38 +1,43 @@
 <script lang="ts">
-	import { User, asc, desc } from '$lib/stores';
-	import { User as UserClass, type UserProperties } from '$lib/types/user';
+	import { Collections, asc, desc, type CollectionTypes } from '$lib/stores';
 	import { X } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import Sort from './sort.svelte';
 	import type { Ordering } from '$lib/stores/_shared/order';
 	import type { Sorter } from './sort';
 	import { page } from '$app/stores';
+	import { initialState } from '$lib/stores/initialState';
 
 	let collectionName = $derived($page.params.collection);
+	const collectionKey = $derived(
+		Object.keys(Collections).find((key) => key.toLowerCase() === collectionName)
+	) as keyof CollectionTypes;
 
-	// To get the keys from User
-	const user = new UserClass({
-		id: '',
-		ttl: new Date(),
-		firstName: '',
-		lastName: '',
-		account: ''
-	});
-	const allKeys = Object.keys(user) as Array<keyof UserProperties>;
+	type CollectionType = CollectionTypes[typeof collectionKey];
 
-	const readonlyKeys: Array<keyof UserProperties> = ['coll', 'ts'];
+	const collectionInstance = Collections[collectionKey];
+
+	const allKeys = $derived(
+		Object.keys(initialState[collectionKey as keyof typeof initialState]) as Array<
+			keyof CollectionType
+		>
+	);
+
+	const readonlyKeys = ['coll', 'ts'];
 	const writableKeys = allKeys.filter((key) => !readonlyKeys.includes(key));
 
 	type StringifyProperties<T> = {
 		[K in keyof T]: string;
 	};
 
-	type CollectionFilter = StringifyProperties<UserProperties>;
+	type CollectionFilter = StringifyProperties<CollectionType>;
 
 	const createEmptyFilter = (): CollectionFilter => {
 		const filter: Partial<CollectionFilter> = {};
 		allKeys.forEach((key) => {
-			filter[key] = '';
+			if (!['coll', 'ts', 'ttl', 'name', 'id'].includes(key)) {
+				filter[key] = '';
+			}
 		});
 		return filter as CollectionFilter;
 	};
@@ -42,30 +47,39 @@
 	let sorter: Sorter[] = $state([]);
 
 	// Create from sorter `Sorter[]` an array of `Ordering<UserClass>`
-	function getSorters(sorter: Sorter[]): Ordering<UserClass>[] {
+	function getSorters(sorter: Sorter[]): Ordering<CollectionType>[] {
 		return sorter.map((sort) => {
-			const key = sort.key as keyof UserClass;
+			const key = sort.key as keyof CollectionType;
 			const sorterFunction = sort.direction === 'asc' ? asc : desc;
-			return sorterFunction((u: UserClass) => u[key]);
+			return sorterFunction((u: CollectionType) => u[key]);
 		});
 	}
 
-	let usersPageFiltered = $derived(
-		User.where(
-			(u) => u.firstName.includes(filter.firstName) && u.lastName.includes(filter.lastName)
-		).order(...getSorters(sorter))
+	let collectionsPageFiltered = $derived(
+		collectionInstance
+			.where((u) => {
+				const filterKeys = Object.keys(filter) as Array<keyof CollectionFilter>;
+				return filterKeys.every((key) => {
+					return u[key]
+						?.toString()
+						?.toLowerCase()
+						?.includes?.(filter[key]?.toString()?.toLowerCase());
+				});
+			})
+			.order(...getSorters(sorter))
 	);
 
-	const u_user: UserProperties = $state({
-		firstName: '',
-		lastName: ''
+	let u_collection = $state(initialState[collectionKey]);
+
+	$effect(() => {
+		u_collection = initialState[collectionKey];
+		filter = createEmptyFilter();
 	});
 
 	async function createUser() {
-		console.log('New user: ', u_user);
-		User.create(u_user);
-		u_user.firstName = '';
-		u_user.lastName = '';
+		console.log('New user: ', u_collection);
+		collectionInstance.create(u_collection);
+		u_collection = initialState[collectionKey];
 
 		await tick();
 		const inputElement = document.getElementById('create-user');
@@ -83,8 +97,8 @@
 
 <div class="flex flex-wrap justify-center gap-10 p-4">
 	<div>
-		<button class="btn preset-filled" onclick={() => User.undo()}>Undo</button>
-		<button class="btn preset-filled" onclick={() => User.redo()}>Redo</button>
+		<button class="btn preset-filled" onclick={() => collectionInstance.undo()}>Undo</button>
+		<button class="btn preset-filled" onclick={() => collectionInstance.redo()}>Redo</button>
 	</div>
 	<div class="w-192 flex flex-col gap-10">
 		<div class="flex flex-col gap-3">
@@ -94,10 +108,17 @@
 					<thead>
 						<tr>
 							<th></th>
-							{#each allKeys as key}
+							{#each allKeys as keyName (keyName)}
 								<th>
-									{key}
-									<input class="input" type="text" name="filter-{key}" bind:value={filter[key]} />
+									{keyName}
+									{#if filter?.[keyName] !== undefined}
+										<input
+											class="input"
+											type="text"
+											name="filter-{keyName}"
+											bind:value={filter[keyName]}
+										/>
+									{/if}
 								</th>
 							{/each}
 							<th></th>
@@ -105,18 +126,30 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each usersPageFiltered.data as user, index}
+						{#each collectionsPageFiltered.data as collectionData, index}
 							<tr>
 								<td class="w-5">{index + 1}</td>
 								{#each allKeys as key}
-									<td> <input class="input" type="text" bind:value={user[key]} name="key" /></td>
+									<td>
+										<input
+											class="input"
+											type="text"
+											bind:value={collectionData[key]}
+											name="key"
+										/></td
+									>
 								{/each}
 								<td>
-									<button class="btn preset-filled" onclick={() => user.update(user)}>Update</button
+									<button
+										class="btn preset-filled"
+										onclick={() => collectionData.update(collectionData)}>Update</button
 									>
 								</td>
 								<td>
-									<button class="btn-icon preset-tonal-error" onclick={() => user.delete()}>
+									<button
+										class="btn-icon preset-tonal-error"
+										onclick={() => collectionData.delete()}
+									>
 										<X />
 									</button>
 								</td>
@@ -124,29 +157,23 @@
 						{/each}
 						<tr id="create-user">
 							<td></td>
-							<td>
-								<input
-									class="input"
-									name="firstName"
-									type="text"
-									bind:value={u_user.firstName}
-									onkeydown={on_key_down}
-								/></td
-							>
-							<td>
-								<input
-									class="input"
-									name="lastName"
-									type="text"
-									bind:value={u_user.lastName}
-									onkeydown={on_key_down}
-								/>
-							</td>
+							{#each Object.keys(u_collection) as u_collection_key (u_collection_key)}
+								<td>
+									<input
+										class="input"
+										name={u_collection_key}
+										type="text"
+										bind:value={u_collection[u_collection_key as keyof typeof u_collection]}
+										onkeydown={on_key_down}
+									/></td
+								>
+							{/each}
+
 							<td>
 								<button
 									class="btn max-w-48 preset-filled"
 									onclick={() => createUser()}
-									onkeydown={on_key_down}>Create User</button
+									onkeydown={on_key_down}>Create Document</button
 								>
 							</td>
 						</tr>
