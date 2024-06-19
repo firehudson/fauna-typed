@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Collections, asc, desc, type CollectionTypes } from '$lib/stores';
+	import { getStore, asc, desc, type CollectionTypes } from '$lib/stores';
 	import { X } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import Sort from './sort.svelte';
@@ -7,6 +7,8 @@
 	import type { Sorter } from './sort';
 	import { page } from '$app/stores';
 	import { initialState } from '$lib/stores/initialState';
+
+	const Collections = getStore();
 
 	let collectionName = $derived($page.params.collection);
 	const collectionKey = $derived(

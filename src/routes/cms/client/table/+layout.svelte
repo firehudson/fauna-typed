@@ -2,10 +2,12 @@
 	import { page } from '$app/stores';
 	import { Tabs } from '@skeletonlabs/skeleton-svelte';
 	import { goto } from '$app/navigation';
-	import { Collections } from '$lib/stores';
+	import { getStore } from '$lib/stores';
 
 	let group = $state($page.params.collection);
 	let { children } = $props();
+
+	const Collections = getStore();
 
 	function handleTabClick(tabName: string) {
 		goto(`/cms/client/table/${tabName.toLowerCase()}`);
