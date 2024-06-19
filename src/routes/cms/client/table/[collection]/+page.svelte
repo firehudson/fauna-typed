@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getStore, asc, desc, type CollectionTypes } from '$lib/stores';
+	import { Collections, asc, desc, type CollectionTypes } from '$lib/stores/index.svelte';
 	import { X } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import Sort from './sort.svelte';
@@ -8,16 +8,14 @@
 	import { page } from '$app/stores';
 	import { initialState } from '$lib/stores/initialState';
 
-	const Collections = getStore();
-
 	let collectionName = $derived($page.params.collection);
 	const collectionKey = $derived(
-		Object.keys(Collections).find((key) => key.toLowerCase() === collectionName)
+		Object.keys(Collections.stores || {}).find((key) => key.toLowerCase() === collectionName)
 	) as keyof CollectionTypes;
 
 	type CollectionType = CollectionTypes[typeof collectionKey];
 
-	const collectionInstance = Collections[collectionKey];
+	const collectionInstance = Collections.stores ? Collections.stores[collectionKey] : null;
 
 	const allKeys = $derived(
 		Object.keys(initialState[collectionKey as keyof typeof initialState]) as Array<
@@ -59,7 +57,7 @@
 
 	let collectionsPageFiltered = $derived(
 		collectionInstance
-			.where((u) => {
+			?.where((u) => {
 				const filterKeys = Object.keys(filter) as Array<keyof CollectionFilter>;
 				return filterKeys.every((key) => {
 					return u[key]
@@ -68,7 +66,7 @@
 						?.includes?.(filter[key]?.toString()?.toLowerCase());
 				});
 			})
-			.order(...getSorters(sorter))
+			?.order(...getSorters(sorter))
 	);
 
 	let u_collection = $state(initialState[collectionKey]);
@@ -80,7 +78,7 @@
 
 	async function createUser() {
 		console.log('New user: ', u_collection);
-		collectionInstance.create(u_collection);
+		collectionInstance?.create(u_collection);
 		u_collection = initialState[collectionKey];
 
 		await tick();
@@ -99,8 +97,8 @@
 
 <div class="flex flex-wrap justify-center gap-10 p-4">
 	<div>
-		<button class="btn preset-filled" onclick={() => collectionInstance.undo()}>Undo</button>
-		<button class="btn preset-filled" onclick={() => collectionInstance.redo()}>Redo</button>
+		<button class="btn preset-filled" onclick={() => collectionInstance?.undo()}>Undo</button>
+		<button class="btn preset-filled" onclick={() => collectionInstance?.redo()}>Redo</button>
 	</div>
 	<div class="w-192 flex flex-col gap-10">
 		<div class="flex flex-col gap-3">

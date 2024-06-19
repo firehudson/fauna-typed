@@ -23,13 +23,13 @@ const UserStore = createDocumentStore<User>('User');
 
 const initUserStore = UserStore.init(AccountStore);
 
-let Collections: Record<string, UserStore> | null = null;
+const Collections: { stores: Record<string, UserStore> | null } = $state({ stores: null });
 
 export const initStore = async () => {
 	console.log('=============Start');
 	const collectionsRes = (await client.query(fql(['Collection.all().toArray()']))).data as any[];
 
-	Collections = Object.fromEntries(
+	Collections.stores = Object.fromEntries(
 		collectionsRes?.map((collection) => {
 			const typedKey = collection.name as keyof CollectionTypes;
 
@@ -45,11 +45,11 @@ export const initStore = async () => {
 
 export const getStore = () => {
 	console.log('getStore', Collections);
-	if (!Collections) {
+	if (!Collections.stores) {
 		throw new Error('Store not initialized');
 	}
 
-	return Collections;
+	return Collections.stores || {};
 };
 
 export { initUserStore as User, asc, desc, Collections };

@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import '../app.css';
-	import { initStore } from '$lib/stores';
+	import { initStore } from '$lib/stores/index.svelte';
 
 	onMount(() => {
 		initStore();
