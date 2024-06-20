@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { Tabs } from '@skeletonlabs/skeleton-svelte';
 	import { goto } from '$app/navigation';
-	import { Collections } from '$lib/stores/index.svelte';
+	import { CollectionStore } from '$lib/stores/index.svelte';
 
 	let group = $state($page.params.collection);
 	let { children } = $props();
@@ -14,9 +14,11 @@
 
 <Tabs>
 	{#snippet list()}
-		{#each Object.keys(Collections.stores || {}) as collection (collection)}
-			<Tabs.Control bind:group name={collection} onchange={() => handleTabClick(collection)}
-				>{collection}</Tabs.Control
+		{#each CollectionStore.all()?.data as collection (collection.name)}
+			<Tabs.Control
+				bind:group
+				name={collection.name}
+				onchange={() => handleTabClick(collection.name)}>{collection.name}</Tabs.Control
 			>
 		{/each}
 	{/snippet}

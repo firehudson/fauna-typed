@@ -7,7 +7,7 @@ import type { Event } from '$lib/types/event';
 import type { MasterQuestion } from '$lib/types/masterQuestion';
 import type { MasterAnswer } from '$lib/types/masterAnswer';
 import type { MasterChapter } from '$lib/types/masterChapter';
-import { client, fql } from '$lib/database/client';
+import { createCollectionStore } from './store-collection.svelte';
 
 export type CollectionTypes = {
 	Consequence: Consequence;
@@ -20,17 +20,18 @@ export type CollectionTypes = {
 
 const AccountStore = createAccountStore();
 const UserStore = createDocumentStore<User>('User');
+const CollectionStore = createCollectionStore().init();
 
 const initUserStore = UserStore.init(AccountStore);
 
 const Collections: { stores: Record<string, UserStore> | null } = $state({ stores: null });
 
 export const initStore = async () => {
-	console.log('=============Start');
-	const collectionsRes = (await client.query(fql(['Collection.all().toArray()']))).data as any[];
+	const collections = CollectionStore.all().data;
+	console.log('=============Start', collections);
 
 	Collections.stores = Object.fromEntries(
-		collectionsRes?.map((collection) => {
+		collections?.map((collection) => {
 			const typedKey = collection.name as keyof CollectionTypes;
 
 			return [
@@ -43,13 +44,4 @@ export const initStore = async () => {
 	console.log('Store initialized', Collections);
 };
 
-export const getStore = () => {
-	console.log('getStore', Collections);
-	if (!Collections.stores) {
-		throw new Error('Store not initialized');
-	}
-
-	return Collections.stores || {};
-};
-
-export { initUserStore as User, asc, desc, Collections };
+export { initUserStore as User, asc, desc, Collections, CollectionStore };

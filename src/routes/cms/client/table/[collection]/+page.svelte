@@ -1,27 +1,44 @@
 <script lang="ts">
-	import { Collections, asc, desc, type CollectionTypes } from '$lib/stores/index.svelte';
+	import {
+		Collections,
+		CollectionStore,
+		asc,
+		desc,
+		type CollectionTypes
+	} from '$lib/stores/index.svelte';
 	import { X } from 'lucide-svelte';
 	import { tick } from 'svelte';
 	import Sort from './sort.svelte';
 	import type { Ordering } from '$lib/stores/_shared/order';
 	import type { Sorter } from './sort';
 	import { page } from '$app/stores';
-	import { initialState } from '$lib/stores/initialState';
+
+	const baseCollectionFields = { id: '', ttl: new Date() };
 
 	let collectionName = $derived($page.params.collection);
 	const collectionKey = $derived(
-		Object.keys(Collections.stores || {}).find((key) => key.toLowerCase() === collectionName)
+		CollectionStore.all().data.find(
+			(collectionData) => collectionData.name.toLowerCase() === collectionName
+		)?.name
 	) as keyof CollectionTypes;
 
 	type CollectionType = CollectionTypes[typeof collectionKey];
 
-	const collectionInstance = Collections.stores ? Collections.stores[collectionKey] : null;
-
-	const allKeys = $derived(
-		Object.keys(initialState[collectionKey as keyof typeof initialState]) as Array<
-			keyof CollectionType
-		>
+	const collectionInstance = $derived(
+		Collections.stores ? Collections.stores[collectionKey] : null
 	);
+
+	const { initialState, allKeys } = $derived.by(() => {
+		const fields = {
+			...baseCollectionFields,
+			...(CollectionStore.byName(collectionKey)?.fields || {})
+		};
+		const keys = Object.keys(fields || {});
+
+		const initialState = Object.fromEntries(keys.map((key) => [key, '']));
+
+		return { initialState, allKeys: keys as Array<keyof CollectionType> };
+	});
 
 	const readonlyKeys = ['coll', 'ts'];
 	const writableKeys = allKeys.filter((key) => !readonlyKeys.includes(key));
@@ -69,17 +86,17 @@
 			?.order(...getSorters(sorter))
 	);
 
-	let u_collection = $state(initialState[collectionKey]);
+	let u_collection = $state(initialState);
 
 	$effect(() => {
-		u_collection = initialState[collectionKey];
+		u_collection = initialState;
 		filter = createEmptyFilter();
 	});
 
 	async function createUser() {
 		console.log('New user: ', u_collection);
 		collectionInstance?.create(u_collection);
-		u_collection = initialState[collectionKey];
+		u_collection = initialState;
 
 		await tick();
 		const inputElement = document.getElementById('create-user');
@@ -126,7 +143,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each collectionsPageFiltered.data as collectionData, index}
+						{#each collectionsPageFiltered?.data || [] as collectionData, index}
 							<tr>
 								<td class="w-5">{index + 1}</td>
 								{#each allKeys as key}
@@ -157,7 +174,7 @@
 						{/each}
 						<tr id="create-user">
 							<td></td>
-							{#each Object.keys(u_collection) as u_collection_key (u_collection_key)}
+							{#each Object.keys(u_collection || {}) as u_collection_key (u_collection_key)}
 								<td>
 									<input
 										class="input"
