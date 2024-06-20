@@ -18,7 +18,7 @@ export type CreateCollectionStore = {
 };
 
 export type CollectionStore = {
-	byName: (id: string) => Collection;
+	byName: (name: string) => Collection;
 	all: () => Page<Collection>;
 	paginate: (after: string) => Page<Collection>; // TODO: To be implemented
 	where: (filter: Predicate<Collection>) => Page<Collection>;
@@ -55,7 +55,7 @@ const getObjects = (filter: Predicate<Collection>): Collection[] => {
 };
 
 const upsertObject = (user: CollectionProperties): Collection => {
-	// const index = current.findIndex((u) => u.id === user.id);
+	// const index = current.findIndex((u) => u.name === user.name);
 	// const newUser = new Collection(user);
 	// if (index > -1) {
 	// 	addToPast();
@@ -65,7 +65,7 @@ const upsertObject = (user: CollectionProperties): Collection => {
 	// 	current.push(newUser);
 	// }
 	// toLocalStorage();
-	// const updatedUser = current.find((u) => u.id === newUser.id);
+	// const updatedUser = current.find((u) => u.name === newUser.name);
 	// if (!updatedUser) {
 	// 	throw new Error('Collection not found after upsert');
 	// }
@@ -73,8 +73,8 @@ const upsertObject = (user: CollectionProperties): Collection => {
 	return {} as Collection;
 };
 
-export const updateObject = (id: string, fields: Partial<CollectionProperties>) => {
-	const user = current.find((u) => u.id === id);
+export const updateObject = (name: string, fields: Partial<CollectionProperties>) => {
+	const user = current.find((u) => u.name === name);
 	if (user) {
 		addToPast();
 		Object.assign(user, fields);
@@ -82,14 +82,14 @@ export const updateObject = (id: string, fields: Partial<CollectionProperties>) 
 	}
 };
 
-export const replaceObject = (id: string, fields: CollectionProperties) => {
-	const index = current.findIndex((u) => u.id === id);
+export const replaceObject = (name: string, fields: CollectionProperties) => {
+	const index = current.findIndex((u) => u.name === name);
 	if (index !== -1) {
 		addToPast();
 		Object.assign(current[index], fields);
 		Object.keys(current[index]).forEach((key) => {
 			if (!(key in fields)) {
-				if (key !== 'id' && key !== 'ts' && key !== 'coll') {
+				if (key !== 'name' && key !== 'ts' && key !== 'coll') {
 					delete current[index][key];
 				}
 			}
@@ -98,8 +98,8 @@ export const replaceObject = (id: string, fields: CollectionProperties) => {
 	}
 };
 
-export const deleteObject = (id: string) => {
-	const index = current.findIndex((u) => u.id === id);
+export const deleteObject = (name: string) => {
+	const index = current.findIndex((u) => u.name === name);
 	if (index !== -1) {
 		addToPast();
 		current.splice(index, 1);
@@ -284,8 +284,8 @@ export const createCollectionStore = (): CreateCollectionStore => {
 			console.log('objectProp:', prop);
 
 			switch (prop) {
-				case 'id':
-					return target.id;
+				case 'name':
+					return target.name;
 				case 'ts':
 					return target.ts;
 				case 'coll':
